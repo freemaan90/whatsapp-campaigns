@@ -6,6 +6,7 @@ import { AppService } from './app.service';
 import { WhatsappSenderModule } from './whatsapp-sender/whatsapp-sender.module';
 import { WhatsappModule } from './whatsapp/whatsapp.module';
 import { HttpRequestModule } from './http-request/http-request.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { HttpRequestModule } from './http-request/http-request.module';
     HttpRequestModule,
     WhatsappSenderModule,
     WhatsappModule,
+    HealthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
