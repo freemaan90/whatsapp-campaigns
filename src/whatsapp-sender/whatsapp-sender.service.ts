@@ -15,6 +15,6 @@ export class WhatsappSenderService {
     };
 
     const response = await this.httpRequest.post(baseURL,data,headers)
-    
+    return response
   }
 }
