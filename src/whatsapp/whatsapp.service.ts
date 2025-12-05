@@ -1,26 +1,17 @@
 import { Injectable } from '@nestjs/common';
+import { WhatsAppTemplateDto } from 'src/whatsapp-sender/dto/whatsapp-template.dto';
 import { WhatsappSenderService } from 'src/whatsapp-sender/whatsapp-sender.service';
+import { MarkAsReadDto } from './dto/mark-as-read.dto';
 
 @Injectable()
 export class WhatsappService {
   constructor(private whatsappSenderService: WhatsappSenderService) {}
 
-  async sendMessage(to:number, body:any) {
-    const data = {
-      messaging_product: 'whatsapp',
-      to,
-      text: { body },
-    };
-
-    await this.whatsappSenderService.sendToWhatsApp(data);
+  async sendTemplateMessage(data: WhatsAppTemplateDto) {
+    await this.whatsappSenderService.sendTemplateToWhatsApp(data);
   }
 
-  async markAsRead(messageId:string) {
-    const data = {
-      messaging_product: 'whatsapp',
-      status: 'read',
-      message_id: messageId,
-    };
-    await this.whatsappSenderService.sendToWhatsApp(data);
+  async markAsRead(data: MarkAsReadDto) {
+    await this.whatsappSenderService.sendMarkAsReadToWhatsApp(data);
   }
 }
