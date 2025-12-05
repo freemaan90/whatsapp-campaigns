@@ -13,7 +13,7 @@ import { HttpRequestModule } from './http-request/http-request.module';
       isGlobal: true,
       envFilePath: ['.env'],
     }),
-    HttpRequestModule,      // <-- aquí
+    HttpRequestModule,
     WhatsappSenderModule,
     WhatsappModule,
   ],

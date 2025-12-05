@@ -6,7 +6,7 @@ import { HttpRequestModule } from 'src/http-request/http-request.module';
 
 @Module({
   imports: [
-    HttpRequestModule, // <-- aquí importas el módulo que ya trae HttpModule
+    HttpRequestModule
   ],
   controllers: [WhatsappController],
   providers: [WhatsappService, WhatsappSenderService],
