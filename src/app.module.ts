@@ -7,6 +7,7 @@ import { WhatsappSenderModule } from './whatsapp-sender/whatsapp-sender.module';
 import { WhatsappModule } from './whatsapp/whatsapp.module';
 import { HttpRequestModule } from './http-request/http-request.module';
 import { HealthModule } from './health/health.module';
+import { WhatsappTemplatesModule } from './whatsapp-templates/whatsapp-templates.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { HealthModule } from './health/health.module';
     WhatsappSenderModule,
     WhatsappModule,
     HealthModule,
+    WhatsappTemplatesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
