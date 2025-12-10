@@ -53,6 +53,23 @@ export class HttpRequestService {
     }
   }
 
+  async patch<T = any>(
+    url: string,
+    data: any,
+    headers: Record<string, string> = {},
+  ): Promise<T> {
+        try {
+      const response: AxiosResponse<T> = await this.http.axiosRef.patch(
+        url,
+        data,
+        { headers },
+      );
+      return response.data;
+    } catch (error) {
+      this.handleError(error as AxiosError, url);
+    }
+  }
+
   private handleError(error: AxiosError, url: string): never {
     if (error.response) {
       const status = error.response.status;
