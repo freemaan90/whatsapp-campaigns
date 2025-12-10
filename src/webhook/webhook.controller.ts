@@ -1,10 +1,16 @@
 // webhook.controller.ts
-import { Controller, Get, Query } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Post, Query, Req, Res } from '@nestjs/common';
 import { WebhookService } from './webhook.service';
 
 @Controller('webhook')
 export class WebhookController {
   constructor(private readonly webhookService: WebhookService) {}
+
+  @Post()
+  @HttpCode(200) // evita tener que usar res.sendStatus(200)
+  async handleIncoming(@Body() body: any): Promise<void> {
+    await this.webhookService.handleIncoming(body);
+  }
 
   @Get()
   verifyWebhook(
