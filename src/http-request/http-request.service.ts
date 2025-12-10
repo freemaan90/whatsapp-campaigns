@@ -39,6 +39,20 @@ export class HttpRequestService {
     }
   }
 
+  async delete<T = any>(
+    url: string,
+    headers: Record<string, string> = {},
+  ): Promise<T> {
+    try {
+      const response: AxiosResponse<T> = await this.http.axiosRef.delete(url, {
+        headers,
+      });
+      return response.data;
+    } catch (error) {
+      this.handleError(error as AxiosError, url);
+    }
+  }
+
   private handleError(error: AxiosError, url: string): never {
     if (error.response) {
       const status = error.response.status;

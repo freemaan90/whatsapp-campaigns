@@ -1,6 +1,7 @@
-import { Body, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post } from '@nestjs/common';
 import { WhatsappTemplatesService } from './whatsapp-templates.service';
 import { CreateNewTemplateDto } from './dto/create-new-template.dto';
+import { DeleteTemplateByIdDto } from './dto/delete-template-by-id.dto';
 
 @Controller('whatsapp-templates')
 export class WhatsappTemplatesController {
@@ -13,5 +14,9 @@ export class WhatsappTemplatesController {
   @Post(`new-template`)
   async createNewTemplate(@Body() createNewTemplate: CreateNewTemplateDto){
     return await this.whatsappTemplatesService.createNewTemplate(createNewTemplate)
+  }
+  @Delete(`template-by-id`)
+  async deleteTemplateById(@Body() deleteTemplateByIdDto:DeleteTemplateByIdDto){
+    return await this.whatsappTemplatesService.deleteTemplateById(deleteTemplateByIdDto)
   }
 }
