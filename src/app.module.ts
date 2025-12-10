@@ -9,6 +9,7 @@ import { HttpRequestModule } from './http-request/http-request.module';
 import { HealthModule } from './health/health.module';
 import { WhatsappTemplatesModule } from './whatsapp-templates/whatsapp-templates.module';
 import { WhatsappMessagesModule } from './whatsapp-messages/whatsapp-messages.module';
+import { WebhookModule } from './webhook/webhook.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { WhatsappMessagesModule } from './whatsapp-messages/whatsapp-messages.mo
     HealthModule,
     WhatsappTemplatesModule,
     WhatsappMessagesModule,
+    WebhookModule,
   ],
   controllers: [AppController],
   providers: [AppService],
