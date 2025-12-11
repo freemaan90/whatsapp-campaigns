@@ -9,12 +9,14 @@ import {
 } from 'src/common/utils/helpers';
 import { WhatsappService } from 'src/whatsapp/whatsapp.service';
 import { GoogleSheetsService } from '../google-sheets/google-sheets.service';
+import { SenderInfo } from 'src/interfaces/SenderInfo.interfaces';
+import { Contact } from 'src/interfaces/WhatsappStatusWebhook.interfaces';
 
 @Injectable()
 export class WhatsappMessagesService {
   private appointmentState: Record<string, any> = {};
   private assistandState: Record<string, any> = {};
-
+  
   constructor(
     private configService: ConfigService,
     private readonly httpRequest: HttpRequestService,
@@ -40,7 +42,9 @@ export class WhatsappMessagesService {
     return this.httpRequest.post(baseURL, data, headers);
   }
 
-  async handleIncomingMessage(message: any, senderInfo: any) {
+  async handleIncomingMessage(message: any, senderInfo: Contact) {
+    console.log(JSON.stringify(message));
+    
     const phoneNumber = normalizePhoneNumber(message.from);
     if (message?.type === 'text') {
       const incomingMessage = message.text.body.toLowerCase().trim();
@@ -69,7 +73,7 @@ export class WhatsappMessagesService {
     }
   }
 
-  async hadleAssistandFlow(to, message) {
+  async hadleAssistandFlow(to:string, message:any) {
     const state = this.assistandState[to];
     let response;
 

@@ -1,54 +1,64 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { google } from 'googleapis';
+import { google, sheets_v4 } from 'googleapis';
+import { AnyAuthClient, AuthClient, GoogleAuth, JWT, OAuth2Client } from 'google-auth-library';
 
 @Injectable()
 export class GoogleSheetsService {
-  constructor(private configService: ConfigService) {}
+  private readonly logger = new Logger(GoogleSheetsService.name);
+  private sheets: sheets_v4.Sheets;
 
-  private sheets = google.sheets('v4');
-  private async addRowtoSheet(
+  constructor(private readonly configService: ConfigService) {
+    this.sheets = google.sheets('v4');
+  }
+
+  private async getAuthClient(): Promise<AnyAuthClient> {
+    const credentials = JSON.parse(
+      Buffer.from(this.configService.get<string>('GOOGLE_CREDENTIALS')!, 'base64').toString(),
+    );
+
+    const auth = new google.auth.GoogleAuth({
+      credentials,
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    });
+
+    return auth.getClient();
+  }
+
+  async addRowToSheet(
     auth: any,
     spreadsheetId: string,
-    values: string,
-  ) {
+    values: string[],
+  ): Promise<sheets_v4.Schema$AppendValuesResponse> {
     const request = {
       spreadsheetId,
       range: 'reservas',
       valueInputOption: 'RAW',
       insertDataOption: 'INSERT_ROWS',
       resource: {
-        values: [values],
+        values: [values], // cada fila es un array de strings
       },
       auth,
     };
 
     try {
-      const response = (await this.sheets.spreadsheets.values.append(request))
-        .data;
-      return response;
+      const response = await this.sheets.spreadsheets.values.append(request);
+      return response.data;
     } catch (error) {
-      console.error(error);
+      this.logger.error('Error adding row to sheet', error);
+      throw error;
     }
   }
-  async appendToSheets(data: any) {
+
+  async appendToSheets(values: string[]): Promise<string> {
     try {
-      const credentials = JSON.parse(
-        Buffer.from(
-          this.configService.get('GOOGLE_CREDENTIALS'),
-          'base64',
-        ).toString(),
-      );
-      const auth = new google.auth.GoogleAuth({
-        credentials,
-        scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-      });
-      const autClient = await auth.getClient();
-      const spreadsheetId = '1sC0Vn7bTHfDevOWIfbc2XSIUrE3OEmEoUG2dfGPYh5I';
-      await this.addRowtoSheet(autClient, spreadsheetId, data);
+      const authClient = await this.getAuthClient();
+      const spreadsheetId = this.configService.get<string>('SPREADSHEET_ID')!
+      await this.addRowToSheet(authClient, spreadsheetId, values);
       return 'Datos correctamente agregados.';
     } catch (error) {
-      console.error(error);
+      this.logger.error('Error appending to sheet', error);
+      throw error;
     }
   }
 }

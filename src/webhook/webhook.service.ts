@@ -1,6 +1,7 @@
 // webhook.service.ts
 import { Injectable, ForbiddenException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { WhatsappStatusWebhook } from 'src/interfaces/WhatsappStatusWebhook.interfaces';
 import { WhatsappMessagesService } from 'src/whatsapp-messages/whatsapp-messages.service';
 
 @Injectable()
@@ -29,11 +30,10 @@ export class WebhookService {
     throw new ForbiddenException('Invalid verification token');
   }
 
-  async handleIncoming(body: any): Promise<void> {
+  async handleIncoming(body: WhatsappStatusWebhook): Promise<void> {    
     const message = body?.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
-    const senderInfo = body?.entry?.[0]?.changes?.[0]?.value?.contacts?.[0];
-
-    if (message) {
+    const senderInfo = body?.entry?.[0]?.changes?.[0]?.value?.contacts?.[0]
+    if (message && senderInfo) {
       this.whatsAppMessagesService.handleIncomingMessage(message,senderInfo)
     }
   }

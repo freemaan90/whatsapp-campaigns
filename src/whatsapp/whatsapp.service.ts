@@ -81,7 +81,8 @@ export class WhatsappService {
 
     await this.whatsappSenderService.sendToWhatsApp(data);
   }
-  async sendMessage(to: string, body: any, messageId?: string) {
+  async sendMessage(to: string, body: string, messageId?: string) {
+    
     const data = {
       messaging_product: 'whatsapp',
       to,
