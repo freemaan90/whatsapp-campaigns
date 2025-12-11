@@ -1,12 +1,16 @@
 // webhook.service.ts
 import { Injectable, ForbiddenException, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { WhatsappMessagesService } from 'src/whatsapp-messages/whatsapp-messages.service';
 
 @Injectable()
 export class WebhookService {
   private readonly logger = new Logger(WebhookService.name);
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private whatsAppMessagesService:WhatsappMessagesService
+  ) {}
 
   verifyWebhook(
     mode?: string,
@@ -30,18 +34,7 @@ export class WebhookService {
     const senderInfo = body?.entry?.[0]?.changes?.[0]?.value?.contacts?.[0];
 
     if (message) {
-      // Aquí inyectás tu messageHandler como dependencia
-      // o lo importás desde otro servicio
-      await this.processMessage(message, senderInfo);
+      this.whatsAppMessagesService.handleIncomingMessage(message,senderInfo)
     }
-
-    this.logger.log('Webhook processed successfully');
-  }
-
-  private async processMessage(message: any, senderInfo: any) {
-    // Lógica de negocio: delegar a otro servicio, guardar en DB, etc.
-    // Ejemplo:
-    // await this.messageHandler.handleIncomingMessage(message, senderInfo);
-    this.logger.debug(`Message: ${JSON.stringify(message)}, Sender: ${JSON.stringify(senderInfo)}`);
   }
 }

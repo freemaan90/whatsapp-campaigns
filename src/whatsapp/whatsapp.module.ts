@@ -9,7 +9,7 @@ import { HttpRequestModule } from 'src/http-request/http-request.module';
     HttpRequestModule
   ],
   controllers: [WhatsappController],
-  providers: [WhatsappService, WhatsappSenderService],
+  providers: [WhatsappService, WhatsappSenderService,],
   exports: [WhatsappSenderService],
 })
 export class WhatsappModule {}

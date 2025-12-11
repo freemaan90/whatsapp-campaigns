@@ -32,7 +32,12 @@ export class WhatsappService {
     await this.whatsappSenderService.sendToWhatsApp(data);
   }
 
-  async markAsRead(data: MarkAsReadDto) {
+  async markAsRead(messageId: string) {
+    const data = {
+      messaging_product: 'whatsapp',
+      status: 'read',
+      message_id: messageId,
+    };
     await this.whatsappSenderService.sendMarkAsReadToWhatsApp(data);
   }
 
@@ -52,20 +57,20 @@ export class WhatsappService {
     await this.whatsappSenderService.sendToWhatsApp(data);
   }
 
-    async sendContactMessage(to, contact) {
+  async sendContactMessage(to, contact) {
     const data = {
-      messaging_product: "whatsapp",
+      messaging_product: 'whatsapp',
       to,
-      type: "contacts",
+      type: 'contacts',
       contacts: [contact],
     };
     await this.whatsappSenderService.sendToWhatsApp(data);
   }
   async sendLocationMessage(to, latitude, longitud, name, address) {
     const data = {
-      messaging_product: "whatsapp",
+      messaging_product: 'whatsapp',
       to,
-      type: "location",
+      type: 'location',
       location: {
         latitude: latitude,
         longitude: longitud,
