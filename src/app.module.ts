@@ -10,6 +10,7 @@ import { HealthModule } from './health/health.module';
 import { WhatsappTemplatesModule } from './whatsapp-templates/whatsapp-templates.module';
 import { WhatsappMessagesModule } from './whatsapp-messages/whatsapp-messages.module';
 import { WebhookModule } from './webhook/webhook.module';
+import { GoogleSheetsModule } from './google-sheets/google-sheets.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { WebhookModule } from './webhook/webhook.module';
     WhatsappTemplatesModule,
     WhatsappMessagesModule,
     WebhookModule,
+    GoogleSheetsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
