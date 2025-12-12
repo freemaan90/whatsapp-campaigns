@@ -11,6 +11,7 @@ import { WhatsappTemplatesModule } from './whatsapp-templates/whatsapp-templates
 import { WhatsappMessagesModule } from './whatsapp-messages/whatsapp-messages.module';
 import { WebhookModule } from './webhook/webhook.module';
 import { GoogleSheetsModule } from './google-sheets/google-sheets.module';
+import { WhatsappPhonesModule } from './whatsapp-phones/whatsapp-phones.module';
 
 @Module({
   imports: [
@@ -26,6 +27,7 @@ import { GoogleSheetsModule } from './google-sheets/google-sheets.module';
     WhatsappMessagesModule,
     WebhookModule,
     GoogleSheetsModule,
+    WhatsappPhonesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
