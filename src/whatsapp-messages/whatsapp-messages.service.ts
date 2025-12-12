@@ -9,7 +9,6 @@ import {
 } from 'src/common/utils/helpers';
 import { WhatsappService } from 'src/whatsapp/whatsapp.service';
 import { GoogleSheetsService } from '../google-sheets/google-sheets.service';
-import { SenderInfo } from 'src/interfaces/SenderInfo.interfaces';
 import { Contact } from 'src/interfaces/WhatsappStatusWebhook.interfaces';
 
 @Injectable()
@@ -43,7 +42,6 @@ export class WhatsappMessagesService {
   }
 
   async handleIncomingMessage(message: any, senderInfo: Contact) {
-    console.log(JSON.stringify(message));
     
     const phoneNumber = normalizePhoneNumber(message.from);
     if (message?.type === 'text') {
@@ -111,7 +109,7 @@ export class WhatsappMessagesService {
     await this.whatsAppService.sendInteractiveButtons(to, menuMessage, buttons);
   }
 
-  async handleAppointmentFlow(to, message) {
+  async handleAppointmentFlow(to:string, message) {
     const state = this.appointmentState[to];
     let response;
 
@@ -139,7 +137,7 @@ export class WhatsappMessagesService {
     }
     await this.whatsAppService.sendMessage(to, response);
   }
-  async handleMenuOption(to, option) {
+  async handleMenuOption(to:string, option) {
     let response;
     switch (option) {
       case 'option_1':
@@ -235,7 +233,7 @@ export class WhatsappMessagesService {
     await this.whatsAppService.sendMessage(to, welcomeMessage, messageId);
   }
 
-  async sendContact(to) {
+  async sendContact(to:string) {
     const contact = {
       addresses: [
         {
@@ -284,7 +282,7 @@ export class WhatsappMessagesService {
     await this.whatsAppService.sendContactMessage(to, contact);
   }
 
-  async sendLocation(to) {
+  async sendLocation(to:string) {
     const latitude = -32.966896;
     const longitud = -60.654808;
     const name = 'Frederico';
