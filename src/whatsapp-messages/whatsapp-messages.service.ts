@@ -2,25 +2,23 @@ import { Injectable } from '@nestjs/common';
 import { SendTextMessageDto } from './dto/send-text-message.dto';
 import { ConfigService } from '@nestjs/config';
 import { HttpRequestService } from 'src/http-request/http-request.service';
-import {
-  getSenderName,
-  isGreeting,
-  normalizePhoneNumber,
-} from 'src/common/utils/helpers';
+import { isGreeting, normalizePhoneNumber } from 'src/common/utils/helpers';
 import { WhatsappService } from 'src/whatsapp/whatsapp.service';
-import { GoogleSheetsService } from '../google-sheets/google-sheets.service';
-import { Contact } from 'src/interfaces/WhatsappStatusWebhook.interfaces';
+import {
+  Contact,
+  Message,
+} from 'src/interfaces/WhatsappStatusWebhook.interfaces';
+import { ConversationStateService } from 'src/conversation-state/conversation-state.service';
+import { WhatsappMenuService } from 'src/whatsapp-menu/whatsapp-menu.service';
 
 @Injectable()
 export class WhatsappMessagesService {
-  private appointmentState: Record<string, any> = {};
-  private assistandState: Record<string, any> = {};
-  
   constructor(
     private configService: ConfigService,
     private readonly httpRequest: HttpRequestService,
     private whatsAppService: WhatsappService,
-    private googleSheetsService: GoogleSheetsService,
+    private readonly stateService: ConversationStateService,
+    private menuService: WhatsappMenuService
   ) {}
 
   async sendTextMessage({ to, text }: SendTextMessageDto) {
@@ -41,129 +39,25 @@ export class WhatsappMessagesService {
     return this.httpRequest.post(baseURL, data, headers);
   }
 
-  async handleIncomingMessage(message: any, senderInfo: Contact) {
-    
+  async handleIncomingMessage(message: Message, senderInfo: Contact) {
     const phoneNumber = normalizePhoneNumber(message.from);
-    if (message?.type === 'text') {
-      const incomingMessage = message.text.body.toLowerCase().trim();
-      if (isGreeting(incomingMessage)) {
-        await this.sendWelcomeMessage(phoneNumber, message.id, senderInfo);
-        await this.sendWelcomeMenu(phoneNumber);
-      } else if (
-        ['document', 'image', 'audio', 'video'].includes(incomingMessage)
-      ) {
-        await this.sendMedia(phoneNumber, incomingMessage);
-      } else if (this.appointmentState[phoneNumber]) {
-        this.handleAppointmentFlow(phoneNumber, incomingMessage);
-      } else if (this.assistandState[phoneNumber]) {
-        await this.hadleAssistandFlow(phoneNumber, incomingMessage);
-      } else {
-        const option = message.interactive.button_reply.id;
-        await this.handleMenuOption(phoneNumber, option);
-      }
+
+    if (!message) return;
+
+    if (message.type === 'text' && message.text?.body) {
+      await this.handleTextMessage(message, phoneNumber, senderInfo);
       await this.whatsAppService.markAsRead(message.id);
-    } else if (message?.type === 'interactive') {
-      const option = message?.interactive?.button_reply?.id
-        .toLowerCase()
-        .trim();
-      await this.handleMenuOption(phoneNumber, option);
+      return;
+    }
+
+    if (message.type === 'interactive' && message.interactive?.button_reply) {
+      const option = message.interactive.button_reply.id.toLowerCase().trim();
+      await this.menuService.handleMenuOption(phoneNumber, option);
       await this.whatsAppService.markAsRead(message.id);
+      return;
     }
   }
 
-  async hadleAssistandFlow(to:string, message:any) {
-    const state = this.assistandState[to];
-    let response;
-
-    const menuMessage = 'La respuesta fue de tu ayuda?';
-    const buttons = [
-      {
-        type: 'reply',
-        reply: {
-          id: 'option_4',
-          title: 'Si, Gracias',
-        },
-      },
-      {
-        type: 'reply',
-        reply: {
-          id: 'option_5',
-          title: 'Hacer otra pregunta',
-        },
-      },
-      {
-        type: 'reply',
-        reply: {
-          id: 'option_6',
-          title: 'Emergencia',
-        },
-      },
-    ];
-
-    if (state.step === 'question') {
-      // response = await geminiAiService(message);
-    }
-
-    delete this.assistandState[to];
-    await this.whatsAppService.sendMessage(to, response);
-    await this.whatsAppService.sendInteractiveButtons(to, menuMessage, buttons);
-  }
-
-  async handleAppointmentFlow(to:string, message) {
-    const state = this.appointmentState[to];
-    let response;
-
-    switch (state.step) {
-      case 'name':
-        state.name = message;
-        state.step = 'petName';
-        response = 'Gracias, cual es el nombre de tu mascota?';
-        break;
-      case 'petName':
-        state.petName = message;
-        state.step = 'petType';
-        response =
-          'Que tipo de mascota es? (por ejemplo: perro, gato, huron, etc..)';
-        break;
-      case 'petType':
-        state.petType = message;
-        state.step = 'reason';
-        response = 'Cual es el motivo de tu consuta?';
-        break;
-      case 'reason':
-        state.reason = message;
-        response = this.completeAppointment(to);
-        break;
-    }
-    await this.whatsAppService.sendMessage(to, response);
-  }
-  async handleMenuOption(to:string, option) {
-    let response;
-    switch (option) {
-      case 'option_1':
-        this.appointmentState[to] = { step: 'name' };
-        response = 'Por favor, ingresa tu nombre: ';
-        break;
-      case 'option_2':
-        this.assistandState[to] = { step: 'question' };
-        response = 'Realiza tu consulta';
-        break;
-      case 'option_3':
-        await this.sendLocation(to);
-        response = 'Te esperamos en nuestra sucursal';
-        break;
-
-      case 'option_6':
-        response =
-          'Si esto es una emergencia te invitamos a llamar a nuestra linea de atencion';
-        this.sendContact(to);
-        break;
-      default:
-        response = 'Lo siento, no entendi tu seleccion';
-        break;
-    }
-    await this.whatsAppService.sendMessage(to, response);
-  }
   async sendMedia(to: string, option: any) {
     let mediaUrl;
     let caption;
@@ -199,126 +93,41 @@ export class WhatsappMessagesService {
     await this.whatsAppService.sendMediaMessage(to, type, mediaUrl, caption);
   }
 
-  async sendWelcomeMenu(to: string) {
-    const menuMessage = `Elige una opcion`;
-    const buttons = [
-      {
-        type: 'reply',
-        reply: {
-          id: 'option_1',
-          title: 'Agendar',
-        },
-      },
-      {
-        type: 'reply',
-        reply: {
-          id: 'option_2',
-          title: 'Consultar',
-        },
-      },
-      {
-        type: 'reply',
-        reply: {
-          id: 'option_3',
-          title: 'Ubicacion',
-        },
-      },
-    ];
-    await this.whatsAppService.sendInteractiveButtons(to, menuMessage, buttons);
-  }
-  async sendWelcomeMessage(to: string, messageId: string, senderInfo: any) {
-    const senderName = getSenderName(senderInfo);
-    const message = `Bienvenido a MEDPET, En que puedo ayudarte hoy?`;
-    const welcomeMessage = `Hola ${senderName}, ${message}`;
-    await this.whatsAppService.sendMessage(to, welcomeMessage, messageId);
-  }
+  private async handleTextMessage(
+    message: Message,
+    phoneNumber: string,
+    senderInfo: Contact,
+  ) {
+    const incomingMessage =
+      message.text && message.text.body.toLowerCase().trim();
 
-  async sendContact(to:string) {
-    const contact = {
-      addresses: [
-        {
-          street: '123 Calle de las Mascotas',
-          city: 'Ciudad',
-          state: 'Estado',
-          zip: '12345',
-          country: 'PaÃ­s',
-          country_code: 'PA',
-          type: 'WORK',
-        },
-      ],
-      emails: [
-        {
-          email: 'contacto@medpet.com',
-          type: 'WORK',
-        },
-      ],
-      name: {
-        formatted_name: 'MedPet Contacto',
-        first_name: 'MedPet',
-        last_name: 'Contacto',
-        middle_name: '',
-        suffix: '',
-        prefix: '',
-      },
-      org: {
-        company: 'MedPet',
-        department: 'AtenciÃ³n al Cliente',
-        title: 'Representante',
-      },
-      phones: [
-        {
-          phone: '+1234567890',
-          wa_id: '1234567890',
-          type: 'WORK',
-        },
-      ],
-      urls: [
-        {
-          url: 'https://www.medpet.com',
-          type: 'WORK',
-        },
-      ],
-    };
-    await this.whatsAppService.sendContactMessage(to, contact);
-  }
+    if (incomingMessage && isGreeting(incomingMessage)) {
+      await this.menuService.sendWelcomeMessage(phoneNumber, message.id, senderInfo);
+      await this.menuService.sendWelcomeMenu(phoneNumber);
+      return;
+    }
 
-  async sendLocation(to:string) {
-    const latitude = -32.966896;
-    const longitud = -60.654808;
-    const name = 'Frederico';
-    const address = 'Galvez 1889, Rosario, Santa Fe';
+    if (
+      incomingMessage &&
+      ['document', 'image', 'audio', 'video'].includes(incomingMessage)
+    ) {
+      await this.sendMedia(phoneNumber, incomingMessage);
+      return;
+    }
 
-    await this.whatsAppService.sendLocationMessage(
-      to,
-      latitude,
-      longitud,
-      name,
-      address,
-    );
-  }
+    if (this.stateService.getAppointmentState(phoneNumber)) {
+      this.menuService.handleAppointmentFlow(phoneNumber, incomingMessage);
+      return;
+    }
 
-  completeAppointment(to: string) {
-    const appointmet = this.appointmentState[to];
-    delete this.appointmentState[to];
-    const userData = [
-      to,
-      appointmet.name,
-      appointmet.petName,
-      appointmet.petType,
-      appointmet.reason,
-      new Date().toISOString(),
-    ];
+    if (this.stateService.getAssistandState(phoneNumber)) {
+      await this.menuService.hadleAssistandFlow(phoneNumber, incomingMessage);
+      return;
+    }
 
-    this.googleSheetsService.appendToSheets(userData);
-    return `Gracias por agendar tu cita
-    Resumen de la cita:
-    Nombre: ${appointmet.name}
-    Nombre de la mascota: ${appointmet.petName}
-    Tipo de mascota: ${appointmet.petType}
-    Motivo de la consulta: ${appointmet.reason}
-    Fecha de la consulta: ${appointmet.date}
-
-    Nos pondremos en contacto contigo pronto, para confirmar la fecha y hora de tu cita.
-    `;
+    if (message.interactive?.button_reply) {
+      const option = message.interactive.button_reply.id;
+      await this.menuService.handleMenuOption(phoneNumber, option);
+    }
   }
 }

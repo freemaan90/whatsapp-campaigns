@@ -16,9 +16,9 @@ export interface Change {
 export interface ChangeValue {
   messaging_product: 'whatsapp';
   metadata: Metadata;
-  messages?: Message[];   // 👈 aquí
-  contacts?: Contact[];   // 👈 aquí
-  statuses?: Status[];
+  messages: Message[];   // 👈 aquí
+  contacts: Contact[];   // 👈 aquí
+  statuses: Status[];
 }
 
 export interface Metadata {
@@ -31,41 +31,41 @@ export interface Message {
   id: string;   // ID del mensaje (wamid...)
   timestamp: string;
   type: string; // "text", "image", "interactive", etc.
-  text?: {
+  text: {
     body: string;
   };
-  interactive?: {
+  interactive: {
     type: string;
-    button_reply?: {
+    button_reply: {
       id: string;
       title: string;
     };
-    list_reply?: {
+    list_reply: {
       id: string;
       title: string;
-      description?: string;
+      description: string;
     };
   };
-  image?: {
-    id?: string;
-    mime_type?: string;
-    sha256?: string;
+  image: {
+    id: string;
+    mime_type: string;
+    sha256: string;
   };
-  audio?: {
-    id?: string;
-    mime_type?: string;
-    sha256?: string;
+  audio: {
+    id: string;
+    mime_type: string;
+    sha256: string;
   };
-  video?: {
-    id?: string;
-    mime_type?: string;
-    sha256?: string;
+  video: {
+    id: string;
+    mime_type: string;
+    sha256: string;
   };
-  document?: {
-    id?: string;
-    filename?: string;
-    mime_type?: string;
-    sha256?: string;
+  document: {
+    id: string;
+    filename: string;
+    mime_type: string;
+    sha256: string;
   };
 }
 

@@ -12,6 +12,9 @@ import { WhatsappMessagesModule } from './whatsapp-messages/whatsapp-messages.mo
 import { WebhookModule } from './webhook/webhook.module';
 import { GoogleSheetsModule } from './google-sheets/google-sheets.module';
 import { WhatsappPhonesModule } from './whatsapp-phones/whatsapp-phones.module';
+import { ChatbotModule } from './chatbot/chatbot.module';
+import { WhatsappMenuModule } from './whatsapp-menu/whatsapp-menu.module';
+import { ConversationStateModule } from './conversation-state/conversation-state.module';
 
 @Module({
   imports: [
@@ -28,6 +31,9 @@ import { WhatsappPhonesModule } from './whatsapp-phones/whatsapp-phones.module';
     WebhookModule,
     GoogleSheetsModule,
     WhatsappPhonesModule,
+    ChatbotModule,
+    WhatsappMenuModule,
+    ConversationStateModule,
   ],
   controllers: [AppController],
   providers: [AppService],

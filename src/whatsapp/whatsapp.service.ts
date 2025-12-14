@@ -1,13 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { WhatsAppTemplateDto } from 'src/whatsapp-sender/dto/whatsapp-template.dto';
 import { WhatsappSenderService } from 'src/whatsapp-sender/whatsapp-sender.service';
-import { MarkAsReadDto } from './dto/mark-as-read.dto';
 import { buildMediaObject } from 'src/common/utils/helpers';
 
 @Injectable()
 export class WhatsappService {
   private readonly logger = new Logger(WhatsappService.name);
-
+  
   constructor(private whatsappSenderService: WhatsappSenderService) {}
 
   async sendTemplateMessage(data: WhatsAppTemplateDto) {
