@@ -18,6 +18,7 @@ import { ConversationStateModule } from './conversation-state/conversation-state
 import { CacheModule } from '@nestjs/cache-manager';
 import KeyvRedis from '@keyv/redis';
 import { CacheableMemory, Keyv } from 'cacheable';
+import { RedisModule } from './redis/redis.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { CacheableMemory, Keyv } from 'cacheable';
     ChatbotModule,
     WhatsappMenuModule,
     ConversationStateModule,
+    RedisModule,
   ],
   controllers: [AppController],
   providers: [AppService],
