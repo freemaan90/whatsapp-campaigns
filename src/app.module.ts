@@ -15,12 +15,26 @@ import { WhatsappPhonesModule } from './whatsapp-phones/whatsapp-phones.module';
 import { ChatbotModule } from './chatbot/chatbot.module';
 import { WhatsappMenuModule } from './whatsapp-menu/whatsapp-menu.module';
 import { ConversationStateModule } from './conversation-state/conversation-state.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import KeyvRedis from '@keyv/redis';
+import { CacheableMemory, Keyv } from 'cacheable';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env'],
+    }),
+    CacheModule.registerAsync({
+      isGlobal: true,
+      useFactory: async () => ({
+        stores: [
+          new KeyvRedis('redis://127.0.0.1:6379'), // primero Redis
+          new Keyv({
+            store: new CacheableMemory({ ttl: 60000, lruSize: 5000 }),
+          }),
+        ],
+      }),
     }),
     HttpRequestModule,
     WhatsappSenderModule,
