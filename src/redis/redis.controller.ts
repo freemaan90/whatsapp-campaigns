@@ -9,7 +9,7 @@ export class RedisController {
   ) { }
   @Post(`cache`)
   async setOnRedis(@Body() value: string) {
-    await this.redisService.postCache(value)
+    await this.redisService.postCache(value,"test")
     return await this.redisService.getCache("test")
   }
 }

@@ -1,9 +1,14 @@
 import { Injectable } from '@nestjs/common';
+import { RedisService } from 'src/redis/redis.service';
 
 @Injectable()
 export class ConversationStateService {
   private appointmentState: Record<string, any> = {};
   private assistandState: Record<string, any> = {};
+
+  constructor(
+    private readonly redisService: RedisService,
+  ){}
 
   // --- Appointment State ---
   getAppointmentState(phone: string) {

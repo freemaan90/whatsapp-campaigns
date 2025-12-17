@@ -7,8 +7,8 @@ export class RedisService {
         @Inject(CACHE_MANAGER) private cacheManager: Cache
     ) { }
 
-    async postCache(value: string) {
-        await this.cacheManager.set(`test`, value, 10000 * 10)
+    async postCache(value: string,phoneId:string) {
+        await this.cacheManager.set(phoneId, value, 10000 * 10)
     }
 
     async getCache(value: string) {

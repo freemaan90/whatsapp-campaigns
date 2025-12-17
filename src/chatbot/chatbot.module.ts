@@ -7,6 +7,7 @@ import { ConversationStateService } from 'src/conversation-state/conversation-st
 import { WhatsappSenderService } from 'src/whatsapp-sender/whatsapp-sender.service';
 import { GoogleSheetsService } from 'src/google-sheets/google-sheets.service';
 import { HttpRequestModule } from 'src/http-request/http-request.module';
+import { RedisService } from 'src/redis/redis.service';
 
 @Module({
   imports:[HttpRequestModule],
@@ -17,7 +18,8 @@ import { HttpRequestModule } from 'src/http-request/http-request.module';
     WhatsappMenuService,
     ConversationStateService,
     WhatsappSenderService,
-    GoogleSheetsService
+    GoogleSheetsService,
+    RedisService
   ],
   exports: [
     WhatsappService,
