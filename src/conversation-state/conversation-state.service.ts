@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { RedisService } from 'src/redis/redis.service';
 
 @Injectable()
 export class ConversationStateService {
@@ -7,7 +6,6 @@ export class ConversationStateService {
   private assistandState: Record<string, any> = {};
 
   constructor(
-    private readonly redisService: RedisService,
   ){}
 
   // --- Appointment State ---

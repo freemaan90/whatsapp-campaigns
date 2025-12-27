@@ -1,6 +1,6 @@
 // app.module.ts
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { WhatsappSenderModule } from './whatsapp-sender/whatsapp-sender.module';
@@ -19,6 +19,8 @@ import { CacheModule } from '@nestjs/cache-manager';
 import KeyvRedis from '@keyv/redis';
 import { CacheableMemory, Keyv } from 'cacheable';
 import { RedisModule } from './redis/redis.module';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -26,15 +28,30 @@ import { RedisModule } from './redis/redis.module';
       isGlobal: true,
       envFilePath: ['.env'],
     }),
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) => ({
+        type: 'postgres',
+        host: config.get<string>('DB_HOST'),
+        port: config.get<number>('DB_PORT'),
+        username: config.get<string>('DB_USER'),
+        password: config.get<string>('DB_PASS'),
+        database: config.get<string>('DB_NAME'),
+        autoLoadEntities: true,
+        synchronize: true,
+      }),
+    }),
     CacheModule.registerAsync({
       isGlobal: true,
-      useFactory: async () => ({
+      inject: [ConfigService],
+      useFactory: async (config:ConfigService) => ({
         stores: [
-          new KeyvRedis('redis://127.0.0.1:6379'), // primero Redis
+          new KeyvRedis(`redis://${config.get('REDIS_HOST')}:${config.get('REDIS_PORT')}`), // primero Redis
           new Keyv({
             store: new CacheableMemory({ ttl: 60000, lruSize: 5000 }),
           }),
         ],
+        ttl: config.get<number>('CACHE_TTL') ?? 60000,
       }),
     }),
     HttpRequestModule,
@@ -50,6 +67,7 @@ import { RedisModule } from './redis/redis.module';
     WhatsappMenuModule,
     ConversationStateModule,
     RedisModule,
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
