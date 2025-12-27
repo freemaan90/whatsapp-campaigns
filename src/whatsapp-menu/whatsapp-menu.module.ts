@@ -9,9 +9,16 @@ import { HttpRequestModule } from 'src/http-request/http-request.module';
 import { RedisService } from 'src/redis/redis.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConversationState } from 'src/conversation-state/conversation-state.entity';
+import { AppointmentService } from 'src/appointment/appointment.service';
+import { AppointmentModule } from 'src/appointment/appointment.module';
 
 @Module({
-  imports: [HttpRequestModule, TypeOrmModule.forFeature([ConversationState])],
+  imports: [
+    AppointmentModule,
+    HttpRequestModule, 
+    TypeOrmModule.forFeature([ConversationState]),
+    TypeOrmModule.forFeature([AppointmentService]),
+  ],
   controllers: [WhatsappMenuController],
   providers: [
     WhatsappMenuService,

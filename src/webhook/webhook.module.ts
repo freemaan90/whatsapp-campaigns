@@ -11,9 +11,16 @@ import { WhatsappMenuService } from 'src/whatsapp-menu/whatsapp-menu.service';
 import { RedisService } from 'src/redis/redis.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConversationState } from 'src/conversation-state/conversation-state.entity';
+import { AppointmentService } from 'src/appointment/appointment.service';
+import { AppointmentModule } from 'src/appointment/appointment.module';
 
 @Module({
-  imports: [HttpRequestModule, TypeOrmModule.forFeature([ConversationState])], // <-- solo este, ya trae HttpModule
+  imports: [
+    AppointmentModule,
+    HttpRequestModule,
+    TypeOrmModule.forFeature([ConversationState]),
+    TypeOrmModule.forFeature([AppointmentService]),
+  ], // <-- solo este, ya trae HttpModule
   controllers: [WebhookController],
   providers: [
     WebhookService,

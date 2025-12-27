@@ -21,6 +21,7 @@ import { CacheableMemory, Keyv } from 'cacheable';
 import { RedisModule } from './redis/redis.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersModule } from './users/users.module';
+import { AppointmentModule } from './appointment/appointment.module';
 
 @Module({
   imports: [
@@ -68,6 +69,7 @@ import { UsersModule } from './users/users.module';
     ConversationStateModule,
     RedisModule,
     UsersModule,
+    AppointmentModule,
   ],
   controllers: [AppController],
   providers: [AppService],

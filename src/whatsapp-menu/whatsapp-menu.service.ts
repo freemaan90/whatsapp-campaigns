@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { AppointmentService } from 'src/appointment/appointment.service';
 import { getSenderName } from 'src/common/utils/helpers';
 import { ConversationStateService } from 'src/conversation-state/conversation-state.service';
 import { GoogleSheetsService } from 'src/google-sheets/google-sheets.service';
@@ -10,6 +11,7 @@ export class WhatsappMenuService {
     private whatsAppService: WhatsappService,
     private googleSheetsService: GoogleSheetsService,
     private readonly stateService: ConversationStateService,
+    private appointmentService: AppointmentService
   ) {}
 
   async handleMenuOption(to: string, option: string) {
@@ -149,7 +151,25 @@ export class WhatsappMenuService {
         await this.stateService.setAppointmentState(to, {
           ...state,
           reason: message,
+          step: 'date',
         });
+        response =
+          'Perfecto. ¿Qué fecha te gustaría reservar? (Ej: 15/02/2025)';
+        break;
+
+      case 'date':
+        // Validar fecha
+        const parsed = this.parseDate(message);
+        if (!parsed) {
+          response = 'La fecha no es válida. Intenta con formato DD/MM/AAAA.';
+          break;
+        }
+
+        await this.stateService.setAppointmentState(to, {
+          ...state,
+          date: parsed,
+        });
+
         response = await this.completeAppointment(to);
         break;
 
@@ -164,6 +184,15 @@ export class WhatsappMenuService {
 
   async completeAppointment(to: string) {
     const appointment = await this.stateService.getAppointmentState(to);
+
+    await this.appointmentService.create({
+      phone: to,
+      name: appointment.name,
+      petName: appointment.petName,
+      petType: appointment.petType,
+      reason: appointment.reason,
+      date: new Date(appointment.date),
+    });
 
     await this.stateService.clearState(to);
 
@@ -214,5 +243,20 @@ Nos pondremos en contacto contigo pronto para confirmar fecha y hora.`;
 
     await this.whatsAppService.sendMessage(to, response);
     await this.whatsAppService.sendInteractiveButtons(to, menuMessage, buttons);
+  }
+
+  parseDate(input: string): string | null {
+    // Formato esperado: DD/MM/YYYY
+    const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
+    const match = input.match(regex);
+
+    if (!match) return null;
+
+    const [_, day, month, year] = match;
+    const date = new Date(`${year}-${month}-${day}`);
+
+    if (isNaN(date.getTime())) return null;
+
+    return date.toISOString();
   }
 }
