@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Appointment } from 'src/appointment/appointment.entity';
 import { AppointmentService } from 'src/appointment/appointment.service';
 import { getSenderName } from 'src/common/utils/helpers';
 import { ConversationStateService } from 'src/conversation-state/conversation-state.service';
@@ -24,8 +25,14 @@ export class WhatsappMenuService {
         break;
 
       case 'option_2':
-        await this.stateService.setAssistantState(to, { step: 'question' });
-        response = 'Realiza tu consulta';
+        const appointments = await this.appointmentService.findByPhone(to);
+
+        if (appointments.length === 0) {
+          response = 'No encontramos reservas asociadas a tu número.';
+          break;
+        }
+
+        response = this.formatAppointments(appointments);
         break;
 
       case 'option_3':
@@ -294,4 +301,15 @@ Nos pondremos en contacto contigo pronto para confirmar fecha y hora.`;
 
     return date.toISOString();
   }
+  formatAppointments(appointments: Appointment[]) {
+  let msg = 'Estas son tus reservas:\n\n';
+
+  for (const a of appointments) {
+    msg += `📅 *${a.date}* a las *${a.time}*\n`;
+    msg += `🐾 Mascota: ${a.petName}\n`;
+    msg += `🔎 Motivo: ${a.reason}\n\n`;
+  }
+
+  return msg;
+}
 }

@@ -15,6 +15,13 @@ export class AppointmentService {
     return this.repo.save(appointment);
   }
 
+  async findByPhone(phone: string) {
+    return this.repo.find({
+      where: { phone },
+      order: { date: 'ASC', time: 'ASC' },
+    });
+  }
+
   async isAvailable(date: string, time: string): Promise<boolean> {
     const existing = await this.repo.findOne({
       where: { date, time },
