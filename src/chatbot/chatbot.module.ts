@@ -8,9 +8,11 @@ import { WhatsappSenderService } from 'src/whatsapp-sender/whatsapp-sender.servi
 import { GoogleSheetsService } from 'src/google-sheets/google-sheets.service';
 import { HttpRequestModule } from 'src/http-request/http-request.module';
 import { RedisService } from 'src/redis/redis.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConversationState } from 'src/conversation-state/conversation-state.entity';
 
 @Module({
-  imports:[HttpRequestModule],
+  imports: [HttpRequestModule, TypeOrmModule.forFeature([ConversationState])],
   controllers: [ChatbotController],
   providers: [
     ChatbotService,
@@ -19,7 +21,7 @@ import { RedisService } from 'src/redis/redis.service';
     ConversationStateService,
     WhatsappSenderService,
     GoogleSheetsService,
-    RedisService
+    RedisService,
   ],
   exports: [
     WhatsappService,

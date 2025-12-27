@@ -7,19 +7,19 @@ import { ConversationStateService } from 'src/conversation-state/conversation-st
 import { WhatsappSenderService } from 'src/whatsapp-sender/whatsapp-sender.service';
 import { HttpRequestModule } from 'src/http-request/http-request.module';
 import { RedisService } from 'src/redis/redis.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConversationState } from 'src/conversation-state/conversation-state.entity';
 
 @Module({
-  imports: [HttpRequestModule],
-  controllers: [
-    WhatsappMenuController,
-  ],
+  imports: [HttpRequestModule, TypeOrmModule.forFeature([ConversationState])],
+  controllers: [WhatsappMenuController],
   providers: [
     WhatsappMenuService,
     WhatsappService,
     GoogleSheetsService,
     ConversationStateService,
     WhatsappSenderService,
-    RedisService
+    RedisService,
   ],
 })
 export class WhatsappMenuModule {}

@@ -115,12 +115,12 @@ export class WhatsappMessagesService {
       return;
     }
 
-    if (this.stateService.getAppointmentState(phoneNumber)) {
+    if (await this.stateService.getAppointmentState(phoneNumber)) {
       this.menuService.handleAppointmentFlow(phoneNumber, incomingMessage);
       return;
     }
 
-    if (this.stateService.getAssistandState(phoneNumber)) {
+    if (await this.stateService.getAssistantState(phoneNumber)) {
       await this.menuService.hadleAssistandFlow(phoneNumber, incomingMessage);
       return;
     }

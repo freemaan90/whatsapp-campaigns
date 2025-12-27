@@ -83,7 +83,7 @@ export class ChatbotService {
       return;
     }
 
-    if (this.stateService.getAppointmentState(phoneNumber)) {
+    if (await this.stateService.getAppointmentState(phoneNumber)) {
       await this.menuService.handleAppointmentFlow(
         phoneNumber,
         incomingMessage,
@@ -91,7 +91,7 @@ export class ChatbotService {
       return;
     }
 
-    if (this.stateService.getAssistandState(phoneNumber)) {
+    if (await this.stateService.getAssistantState(phoneNumber)) {
       await this.menuService.hadleAssistandFlow(phoneNumber, incomingMessage);
       return;
     }

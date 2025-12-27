@@ -9,9 +9,11 @@ import { WhatsappSenderService } from 'src/whatsapp-sender/whatsapp-sender.servi
 import { ConversationStateService } from 'src/conversation-state/conversation-state.service';
 import { WhatsappMenuService } from 'src/whatsapp-menu/whatsapp-menu.service';
 import { RedisService } from 'src/redis/redis.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConversationState } from 'src/conversation-state/conversation-state.entity';
 
 @Module({
-  imports: [HttpRequestModule], // <-- solo este, ya trae HttpModule
+  imports: [HttpRequestModule, TypeOrmModule.forFeature([ConversationState])], // <-- solo este, ya trae HttpModule
   controllers: [WebhookController],
   providers: [
     WebhookService,
@@ -21,7 +23,7 @@ import { RedisService } from 'src/redis/redis.service';
     WhatsappSenderService,
     ConversationStateService,
     WhatsappMenuService,
-    RedisService
+    RedisService,
   ],
   exports: [
     WhatsappMessagesService,
@@ -29,7 +31,7 @@ import { RedisService } from 'src/redis/redis.service';
     GoogleSheetsService,
     WhatsappSenderService,
     ConversationStateService,
-    WhatsappMenuService
+    WhatsappMenuService,
   ],
 })
 export class WebhookModule {}
