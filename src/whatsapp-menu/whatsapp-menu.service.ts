@@ -11,7 +11,7 @@ export class WhatsappMenuService {
     private whatsAppService: WhatsappService,
     private googleSheetsService: GoogleSheetsService,
     private readonly stateService: ConversationStateService,
-    private appointmentService: AppointmentService
+    private appointmentService: AppointmentService,
   ) {}
 
   async handleMenuOption(to: string, option: string) {
@@ -158,16 +158,42 @@ export class WhatsappMenuService {
         break;
 
       case 'date':
-        // Validar fecha
-        const parsed = this.parseDate(message);
-        if (!parsed) {
-          response = 'La fecha no es válida. Intenta con formato DD/MM/AAAA.';
+        const parsedDate = this.parseDate(message);
+        if (!parsedDate) {
+          response = 'La fecha no es válida. Usa formato DD/MM/AAAA.';
           break;
         }
 
         await this.stateService.setAppointmentState(to, {
           ...state,
-          date: parsed,
+          date: parsedDate,
+          step: 'time',
+        });
+
+        response = 'Perfecto. ¿Qué hora te gustaría reservar? (Ej: 14:30)';
+        break;
+
+      case 'time':
+        const parsedTime = this.parseTime(message);
+        if (!parsedTime) {
+          response = 'La hora no es válida. Usa formato HH:mm.';
+          break;
+        }
+
+        // Validar disponibilidad
+        const isFree = await this.appointmentService.isAvailable(
+          state.date,
+          parsedTime,
+        );
+
+        if (!isFree) {
+          response = 'Ese horario ya está reservado. Elige otro horario.';
+          break;
+        }
+
+        await this.stateService.setAppointmentState(to, {
+          ...state,
+          time: parsedTime,
         });
 
         response = await this.completeAppointment(to);
@@ -191,7 +217,8 @@ export class WhatsappMenuService {
       petName: appointment.petName,
       petType: appointment.petType,
       reason: appointment.reason,
-      date: new Date(appointment.date),
+      date: appointment.date, // ← string
+      time: appointment.time, // ← string
     });
 
     await this.stateService.clearState(to);
@@ -213,6 +240,8 @@ Resumen de la cita:
 - Mascota: ${appointment.petName}
 - Tipo: ${appointment.petType}
 - Motivo: ${appointment.reason}
+- Fecha: ${appointment.date}
+- Hora: ${appointment.time}
 
 Nos pondremos en contacto contigo pronto para confirmar fecha y hora.`;
   }
@@ -244,7 +273,13 @@ Nos pondremos en contacto contigo pronto para confirmar fecha y hora.`;
     await this.whatsAppService.sendMessage(to, response);
     await this.whatsAppService.sendInteractiveButtons(to, menuMessage, buttons);
   }
+  parseTime(input: string): string | null {
+    // Formato HH:mm
+    const regex = /^([01]\d|2[0-3]):([0-5]\d)$/;
+    if (!regex.test(input)) return null;
 
+    return input; // válido
+  }
   parseDate(input: string): string | null {
     // Formato esperado: DD/MM/YYYY
     const regex = /^(\d{2})\/(\d{2})\/(\d{4})$/;

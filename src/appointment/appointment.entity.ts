@@ -20,8 +20,11 @@ export class Appointment {
   @Column()
   reason: string;
 
-  @Column({ type: 'timestamp' })
-  date: Date;
+  @Column({ type: 'date' })
+  date: string;
+
+  @Column({ type: 'time' })
+  time: string;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
