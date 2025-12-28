@@ -20,8 +20,11 @@ import KeyvRedis from '@keyv/redis';
 import { CacheableMemory, Keyv } from 'cacheable';
 import { RedisModule } from './redis/redis.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { UsersModule } from './users/users.module';
+import { UserModule } from './user/user.module';
 import { AppointmentModule } from './appointment/appointment.module';
+import { ContactModule } from './contact/contact.module';
+import { LocationModule } from './location/location.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -68,8 +71,11 @@ import { AppointmentModule } from './appointment/appointment.module';
     WhatsappMenuModule,
     ConversationStateModule,
     RedisModule,
-    UsersModule,
+    UserModule,
     AppointmentModule,
+    ContactModule,
+    LocationModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],

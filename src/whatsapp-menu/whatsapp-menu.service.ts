@@ -37,13 +37,8 @@ export class WhatsappMenuService {
 
       case 'option_3':
         await this.sendLocation(to);
-        response = 'Te esperamos en nuestra sucursal';
-        break;
-
-      case 'option_6':
-        response =
-          'Si esto es una emergencia te invitamos a llamar a nuestra linea de atencion';
         await this.sendContact(to);
+        response = 'Te esperamos en nuestra sucursal';
         break;
 
       default:
@@ -242,15 +237,15 @@ export class WhatsappMenuService {
     this.googleSheetsService.appendToSheets(userData);
 
     return `Gracias por agendar tu cita.
-Resumen de la cita:
-- Nombre: ${appointment.name}
-- Mascota: ${appointment.petName}
-- Tipo: ${appointment.petType}
-- Motivo: ${appointment.reason}
-- Fecha: ${appointment.date}
-- Hora: ${appointment.time}
+          Resumen de la cita:
+          - Nombre: ${appointment.name}
+          - Mascota: ${appointment.petName}
+          - Tipo: ${appointment.petType}
+          - Motivo: ${appointment.reason}
+          - Fecha: ${appointment.date}
+          - Hora: ${appointment.time}
 
-Nos pondremos en contacto contigo pronto para confirmar fecha y hora.`;
+        Nos pondremos en contacto contigo pronto para confirmar fecha y hora.`;
   }
 
   // -----------------------------
@@ -274,12 +269,12 @@ Nos pondremos en contacto contigo pronto para confirmar fecha y hora.`;
         type: 'reply',
         reply: { id: 'option_5', title: 'Hacer otra pregunta' },
       },
-      { type: 'reply', reply: { id: 'option_6', title: 'Emergencia' } },
     ];
 
     await this.whatsAppService.sendMessage(to, response);
     await this.whatsAppService.sendInteractiveButtons(to, menuMessage, buttons);
   }
+  
   parseTime(input: string): string | null {
     // Formato HH:mm
     const regex = /^([01]\d|2[0-3]):([0-5]\d)$/;
@@ -302,14 +297,14 @@ Nos pondremos en contacto contigo pronto para confirmar fecha y hora.`;
     return date.toISOString();
   }
   formatAppointments(appointments: Appointment[]) {
-  let msg = 'Estas son tus reservas:\n\n';
+    let msg = 'Estas son tus reservas:\n\n';
 
-  for (const a of appointments) {
-    msg += `📅 *${a.date}* a las *${a.time}*\n`;
-    msg += `🐾 Mascota: ${a.petName}\n`;
-    msg += `🔎 Motivo: ${a.reason}\n\n`;
+    for (const a of appointments) {
+      msg += `📅 *${a.date}* a las *${a.time}*\n`;
+      msg += `🐾 Mascota: ${a.petName}\n`;
+      msg += `🔎 Motivo: ${a.reason}\n\n`;
+    }
+
+    return msg;
   }
-
-  return msg;
-}
 }
