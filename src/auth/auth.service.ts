@@ -1,36 +1,59 @@
+
+// auth.service.ts
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { UserService } from '../user/user.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from '../user/user.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly users: UserService,
-    private readonly jwt: JwtService,
-  ) { }
+    private readonly jwtService: JwtService,
+    @InjectRepository(User) private readonly usersRepo: Repository<User>,
+  ) {}
 
-  async validateUser(email: string, password: string) {
-    const user = await this.users.findByEmail(email);
-    if (!user) throw new UnauthorizedException("Usuario no encontrado");
+  async validateUser(email: string, plainPassword: string) {
+    const user = await this.usersRepo.findOne({
+      where: { email: email.toLowerCase().trim() },
+      relations: { contact: true, location: true },
+      // ⚠️ Si password tiene select:false en la entidad, incluilo explícitamente:
+      select: [
+        'id',
+        'email',
+        'password',
+        'firstName',
+        'lastName',
+        'phone',
+      ],
+    });
 
-    const match = await bcrypt.compare(password, user.password);
-    if (!match) throw new UnauthorizedException("Contraseña incorrecta");
+    if (!user) throw new UnauthorizedException('Invalid credentials');
 
-    // Quitar el password del objeto antes de retornarlo
-    const { password: _password, ...safeUser } = user;
+    const ok = await bcrypt.compare(plainPassword, user.password);
+    if (!ok) throw new UnauthorizedException('Invalid credentials');
 
-    return safeUser;
+    return user;
   }
 
-  async login(username: string, password: string) {
-    const user = await this.validateUser(username, password);
+  async login(email: string, password: string) {
+    const user = await this.validateUser(email, password);
 
-    const payload = { sub: user.id, username: user.email };
-    
-    return {
-      access_token: this.jwt.sign(payload),
-      user,
+    const payload = { sub: user.id, email: user.email };
+    const access_token = await this.jwtService.signAsync(payload);
+
+    // retornar usuario seguro (sin password)
+    const safeUser = {
+      id: user.id,
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      phone: user.phone,
+      contact: user.contact ?? null,
+      location: user.location ?? null,
     };
+
+    return { access_token, user: safeUser };
   }
 }

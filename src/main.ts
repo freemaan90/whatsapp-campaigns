@@ -14,7 +14,7 @@ async function bootstrap() {
 
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: false, // elimina propiedades no definidas en el DTO
+      whitelist: true, // elimina propiedades no definidas en el DTO
       forbidNonWhitelisted: true, // lanza error si llegan props extra
       transform: true, // transforma payloads a instancias de clase
       exceptionFactory: (errors) => {
