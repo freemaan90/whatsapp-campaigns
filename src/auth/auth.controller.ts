@@ -30,4 +30,3 @@ export class AuthController {
     return this.userService.findProfileById(userId);
   }
 }
-``

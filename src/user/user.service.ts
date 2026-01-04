@@ -10,7 +10,7 @@ const BCRYPT_ROUNDS = parseInt(process.env.BCRYPT_ROUNDS ?? '10', 10);
 
 @Injectable()
 export class UserService {
-  constructor(@InjectRepository(User) private repo: Repository<User>) {}
+  constructor(@InjectRepository(User) private repo: Repository<User>) { }
 
   async create(data: Partial<User>) {
     if (!data.password) throw new Error('Password is required');
@@ -34,18 +34,31 @@ export class UserService {
     });
   }
 
+
+  // user.service.ts
   async findProfileById(id: number) {
-    return this.repo.createQueryBuilder('u')
-      .leftJoinAndSelect('u.contact', 'contact')
-      .leftJoinAndSelect('u.location', 'location')
-      .select([
-        'u.id', 'u.email', 'u.phone',
-        'contact.id', 'contact.name', 'contact.avatarUrl',
-        'location.id', 'location.city', 'location.country',
-      ])
-      .where('u.id = :id', { id })
-      .getOne();
+    return this.repo.findOne({
+      where: { id },
+      relations: { contact: true, location: true },
+      select: {
+        id: true,
+        email: true,
+        phone: true,
+        contact: {
+          id: true,
+          company: true,
+          website: true,
+          addresses: true, // jsonb
+        },
+        location: {
+          id: true,
+          city: true,
+          country: true,
+        },
+      },
+    });
   }
+
 
   async findByPhone(phone: string) {
     return this.repo.findOne({
