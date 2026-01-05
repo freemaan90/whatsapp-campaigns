@@ -1,10 +1,14 @@
 
 // contact.controller.ts
-import { Controller, Post, Body, Param, Get, Patch, Delete, ParseIntPipe } from '@nestjs/common';
+import { Controller, Post, Body, Param, Get, Patch, Delete, ParseIntPipe, UseGuards } from '@nestjs/common';
 import { ContactService } from './contact.service';
 import { CreateAddressDto, UpdateAddressDto } from './dto/address.dto';
 import { ContactDto } from './dto/contact.dto'; // tu DTO para crear Contact
+import { AuthGuard } from '@nestjs/passport';
+import { UpdateWebsiteDto } from './dto/website.dto';
+import { UpdateCompanyDto } from './dto/company.dto';
 
+@UseGuards(AuthGuard('jwt'))
 @Controller('contact')
 export class ContactController {
   constructor(private readonly contactService: ContactService) {}
@@ -13,6 +17,31 @@ export class ContactController {
   @Post()
   async createContact(@Body() body: ContactDto) {
     return this.contactService.create(body);
+  }
+
+  // --- CRID de Website and Company
+  
+  // Agregar Website and Company
+
+  @Patch(':id/website')
+  updateWebsite(@Param('id') id: number, @Body() dto: UpdateWebsiteDto) {
+    return this.contactService.updateWebsite(id, dto);
+  }
+
+  
+  @Patch(':id/company')
+  updateCompany(@Param('id') id: number, @Body() dto: UpdateCompanyDto) {
+    return this.contactService.updateCompany(id, dto);
+  }
+
+  @Delete(':id/company')
+  deleteCompany(@Param('id') id: number){
+    return this.contactService.deleteCompany(id)
+  }
+
+  @Delete(':id/website')
+  deleteWebsite(@Param('id') id: number){
+    return this.contactService.deleteWebsite(id)
   }
 
   // --- CRUD de addresses (JSON en Contact) ---

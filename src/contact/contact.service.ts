@@ -1,6 +1,6 @@
 
 // contact.service.ts
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Contact } from './contact.entity';
@@ -8,6 +8,8 @@ import { User } from '../user/user.entity';
 import { ContactDto } from './dto/contact.dto';
 import { CreateAddressDto, UpdateAddressDto } from './dto/address.dto';
 import { randomUUID } from 'crypto'; // Node >=16
+import { UpdateWebsiteDto } from './dto/website.dto';
+import { UpdateCompanyDto } from './dto/company.dto';
 
 @Injectable()
 export class ContactService {
@@ -49,11 +51,6 @@ export class ContactService {
   // Agregar (append) una address con UUID
   async addAddress(contactId: number, dto: CreateAddressDto) {
     const contact = await this.loadContactOr404(contactId);
-
-    // (Opcional) negocio: evitar duplicados por 'type'
-    // if (contact.addresses?.some(a => a.type === dto.type)) {
-    //   throw new ConflictException(`Ya existe una dirección con type='${dto.type}'`);
-    // }
 
     const newAddress = { id: randomUUID(), ...dto };
     const current = Array.isArray(contact.addresses) ? contact.addresses : [];
@@ -107,4 +104,40 @@ export class ContactService {
     await this.contactRepo.save(contact);
     return { deleted: true, addressId: removed.id };
   }
+
+  async updateWebsite(contactId:number, body: UpdateWebsiteDto){
+    const contact = await this.loadContactOr404(contactId);
+    contact.website = body.website
+    await this.contactRepo.save(contact);
+    return contact
+  }
+
+  async updateCompany(contactId:number, body: UpdateCompanyDto){
+    const contact = await this.loadContactOr404(contactId);
+    contact.company = body.company
+    await this.contactRepo.save(contact);
+    return contact
+  }
+
+  async deleteCompany(contactId: number) {
+    await this.contactRepo
+      .createQueryBuilder()
+      .update()
+      .set({ company: () => 'NULL' })    // o { website: null }
+      .where('id = :id', { id: contactId })
+      .execute();
+    return { deleted: true };
+  }
+
+
+  async deleteWebsite(contactId: number) {
+    await this.contactRepo
+      .createQueryBuilder()
+      .update()
+      .set({ website: () => 'NULL' })    // o { website: null }
+      .where('id = :id', { id: contactId })
+      .execute();
+    return { deleted: true };
+  }
+  
 }
