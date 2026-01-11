@@ -3,14 +3,12 @@ import { Appointment } from 'src/appointment/appointment.entity';
 import { AppointmentService } from 'src/appointment/appointment.service';
 import { getSenderName } from 'src/common/utils/helpers';
 import { ConversationStateService } from 'src/conversation-state/conversation-state.service';
-import { GoogleSheetsService } from 'src/google-sheets/google-sheets.service';
 import { WhatsappService } from 'src/whatsapp/whatsapp.service';
 
 @Injectable()
 export class WhatsappMenuService {
   constructor(
     private whatsAppService: WhatsappService,
-    private googleSheetsService: GoogleSheetsService,
     private readonly stateService: ConversationStateService,
     private appointmentService: AppointmentService,
   ) {}
@@ -234,7 +232,6 @@ export class WhatsappMenuService {
       new Date().toISOString(),
     ];
 
-    this.googleSheetsService.appendToSheets(userData);
 
     return `Gracias por agendar tu cita.
           Resumen de la cita:

@@ -1,15 +1,11 @@
-import { Module } from '@nestjs/common';
-import { WhatsappService } from './whatsapp.service';
-import { WhatsappController } from './whatsapp.controller';
-import { WhatsappSenderService } from 'src/whatsapp-sender/whatsapp-sender.service';
-import { HttpRequestModule } from 'src/http-request/http-request.module';
+import { Module } from "@nestjs/common";
+import { HttpRequestModule } from "src/http-request/http-request.module";
+import { WhatsappSenderModule } from "src/whatsapp-sender/whatsapp-sender.module";
+import { WhatsappService } from "./whatsapp.service";
 
 @Module({
-  imports: [
-    HttpRequestModule
-  ],
-  controllers: [WhatsappController],
-  providers: [WhatsappService, WhatsappSenderService,],
-  exports: [WhatsappSenderService],
+  imports: [HttpRequestModule, WhatsappSenderModule], // <-- ESTO ES OBLIGATORIO
+  providers: [WhatsappService],
+  exports: [WhatsappService],
 })
 export class WhatsappModule {}

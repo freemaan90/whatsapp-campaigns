@@ -8,8 +8,8 @@ import {
   Contact,
   Message,
 } from 'src/interfaces/WhatsappStatusWebhook.interfaces';
-import { ConversationStateService } from 'src/conversation-state/conversation-state.service';
 import { WhatsappMenuService } from 'src/whatsapp-menu/whatsapp-menu.service';
+import { ConversationStateService } from 'src/conversation-state/conversation-state.service';
 
 @Injectable()
 export class WhatsappMessagesService {

@@ -1,40 +1,26 @@
 import { Module } from '@nestjs/common';
 import { ChatbotService } from './chatbot.service';
 import { ChatbotController } from './chatbot.controller';
-import { WhatsappService } from 'src/whatsapp/whatsapp.service';
-import { WhatsappMenuService } from 'src/whatsapp-menu/whatsapp-menu.service';
-import { ConversationStateService } from 'src/conversation-state/conversation-state.service';
-import { WhatsappSenderService } from 'src/whatsapp-sender/whatsapp-sender.service';
-import { GoogleSheetsService } from 'src/google-sheets/google-sheets.service';
 import { HttpRequestModule } from 'src/http-request/http-request.module';
-import { RedisService } from 'src/redis/redis.service';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { ConversationState } from 'src/conversation-state/conversation-state.entity';
-import { AppointmentService } from 'src/appointment/appointment.service';
 import { AppointmentModule } from 'src/appointment/appointment.module';
+import { ConversationStateModule } from 'src/conversation-state/conversation-state.module';
+import { WhatsappMenuModule } from 'src/whatsapp-menu/whatsapp-menu.module';
+import { WhatsappModule } from 'src/whatsapp/whatsapp.module';
+import { WhatsappSenderModule } from 'src/whatsapp-sender/whatsapp-sender.module';
+import { RedisModule } from 'src/redis/redis.module';
 
 @Module({
   imports: [
-    AppointmentModule,
     HttpRequestModule,
-    TypeOrmModule.forFeature([ConversationState]),
-    TypeOrmModule.forFeature([AppointmentService]),
+    AppointmentModule,
+    ConversationStateModule,
+    WhatsappMenuModule,
+    WhatsappModule,
+    WhatsappSenderModule,
+    RedisModule,
   ],
   controllers: [ChatbotController],
-  providers: [
-    ChatbotService,
-    WhatsappService,
-    WhatsappMenuService,
-    ConversationStateService,
-    WhatsappSenderService,
-    GoogleSheetsService,
-    RedisService,
-  ],
-  exports: [
-    WhatsappService,
-    WhatsappMenuService,
-    ConversationStateService,
-    WhatsappSenderService,
-  ],
+  providers: [ChatbotService],
+  exports: [],
 })
 export class ChatbotModule {}
