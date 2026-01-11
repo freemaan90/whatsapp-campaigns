@@ -15,7 +15,7 @@ export class WhatsApp {
   @Column({ nullable: true })
   bussines_phone?: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, unique: true })
   waba_id?: string;
 
   @OneToOne(() => User, (user) => user.whatsapp)

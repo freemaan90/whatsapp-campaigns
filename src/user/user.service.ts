@@ -91,7 +91,7 @@ export class UserService {
   async findByEmail(email: string) {
     return this.repo.findOne({
       where: { email: email.toLowerCase().trim() },
-      relations: ['contact', 'location','whatsapp'],
+      relations: ['contact', 'location', 'whatsapp'],
     });
   }
 
@@ -106,7 +106,7 @@ export class UserService {
   async findProfileById(id: number) {
     const user = this.repo.findOne({
       where: { id },
-      relations: { contact: true, location: true, whatsapp:true },
+      relations: { contact: true, location: true, whatsapp: true },
       select: {
         id: true,
         email: true,
@@ -122,24 +122,37 @@ export class UserService {
           city: true,
           country: true,
         },
-        whatsapp:{
+        whatsapp: {
           bussines_phone: true,
           id: true,
-          waba_id: true
-        }
+          waba_id: true,
+        },
       },
     });
 
-    return user
+    return user;
   }
 
   async findByPhone(phone: string) {
     return this.repo.findOne({
       where: { phone: phone.trim() },
-      relations: ['contact', 'location','whatsapp'],
+      relations: ['contact', 'location', 'whatsapp'],
     });
   }
-
+  async findByWabaId(wabaId: string) {
+    return await this.repo.findOne({
+      where: {
+        whatsapp: {
+          waba_id: wabaId,
+        },
+      },
+      relations: {
+        whatsapp: true,
+        contact: true,
+        location: true,
+      },
+    });
+  }
   async updateBussinesPhone(whatsappId: number, body: BussinesPhoneDto) {
     const whatsapp = await this.loadWhatsAppOr404(whatsappId);
     whatsapp.bussines_phone = body.bussinesPhone;
