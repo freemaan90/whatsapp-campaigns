@@ -30,7 +30,8 @@ export class WebhookService {
     throw new ForbiddenException('Invalid verification token');
   }
 
-  async handleIncoming(body: WhatsappStatusWebhook): Promise<void> {    
+  async handleIncoming(body: WhatsappStatusWebhook): Promise<void> {  
+    this.logger.log(JSON.stringify(body))  
     const message = body?.entry?.[0]?.changes?.[0]?.value?.messages?.[0];
     const senderInfo = body?.entry?.[0]?.changes?.[0]?.value?.contacts?.[0]
     if (message && senderInfo) {

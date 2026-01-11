@@ -4,7 +4,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Contact } from './contact.entity';
-import { User } from '../user/user.entity';
+import { User } from '../user/entitys/user.entity';
 import { ContactDto } from './dto/contact.dto';
 import { CreateAddressDto, UpdateAddressDto } from './dto/address.dto';
 import { randomUUID } from 'crypto'; // Node >=16

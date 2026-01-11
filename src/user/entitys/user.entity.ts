@@ -1,13 +1,14 @@
 import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Contact } from '../contact/contact.entity';
-import { Location } from '../location/location.entity';
+import { Contact } from '../../contact/contact.entity';
+import { Location } from '../../location/location.entity';
+import { WhatsApp } from './whatsapp.entity';
 
 @Entity('user')
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
+  @Column()
   phone: string;
 
   @Column()
@@ -16,11 +17,14 @@ export class User {
   @Column()
   lastName: string;
 
-  @Column()
+  @Column({ unique: true })
   email: string;
 
   @Column()
   password: string; // hashed
+
+  @OneToOne(() => WhatsApp, (whatsapp) => whatsapp.user, { cascade: true })
+  whatsapp: WhatsApp;
 
   @OneToOne(() => Contact, (contact) => contact.user, { cascade: true })
   contact: Contact;

@@ -1,7 +1,7 @@
 
 // contact.entity.ts
 import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { User } from '../user/user.entity';
+import { User } from '../user/entitys/user.entity';
 
 export interface AddressItem {
   id: string;              // UUID

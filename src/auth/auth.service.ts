@@ -5,7 +5,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { User } from '../user/user.entity';
+import { User } from '../user/entitys/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -17,7 +17,7 @@ export class AuthService {
   async validateUser(email: string, plainPassword: string) {
     const user = await this.usersRepo.findOne({
       where: { email: email.toLowerCase().trim() },
-      relations: { contact: true, location: true },
+      relations: { contact: true, location: true, whatsapp: true },
       // ⚠️ Si password tiene select:false en la entidad, incluilo explícitamente:
       select: [
         'id',
@@ -52,8 +52,10 @@ export class AuthService {
       phone: user.phone,
       contact: user.contact ?? null,
       location: user.location ?? null,
+      whatsapp: user.whatsapp ?? null,
     };
-
+    console.log(safeUser);
+    
     return { access_token, user: safeUser };
   }
 }
